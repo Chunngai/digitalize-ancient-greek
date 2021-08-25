@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import time
 
 import openpyxl
@@ -265,9 +266,16 @@ def json2xlsx(lesson_json):
 
     set_border(sheet, rows=range(1, row_idx + 1))
 
-    some_long_vowels = ["ᾱ́", "ᾱ̀", "ῑ́", "ῑ̀", "ῡ́", "ῡ̀"]
-    for vowel, col in zip(some_long_vowels, "HIJKLM"):
-        sheet[f"{col}1"] = vowel
+    some_long_vowels = [
+        "ᾱ́", "ᾱ̀", "ᾱ̔ ",
+        "ῑ́", "ῑ̀", "ῑ̔",
+        "ῡ́", "ῡ̀", "ῡ̔"
+    ]
+    count = 0
+    while count < 3:
+        for vowel, col in zip(some_long_vowels[count * 3:count * 3 + 3], "HIJ"):
+            sheet[f"{col}{count + 1}"] = vowel
+        count += 1
 
     return workbook
 
@@ -283,18 +291,21 @@ def main(fp_json, fp_xlsx):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--json", nargs=1)
-    parser.add_argument("--new", action="store_true")
+    parser.add_argument("--json")
     parser.add_argument("--xlsx")
     args = parser.parse_args()
 
-    if args.json:
-        assert args.new is None
-    if args.new:
-        assert args.json is None
-        args.json = ""
-
+    # Ensures the new xlsx does not exist.
+    if args.xlsx:
+        assert not os.path.exists(args.xlsx)
+    # Default xlsx file name.
     if not args.xlsx:
-        args.xlsx = args.json.replace(".json", f"_{time.strftime('%y%m%d%H%M%S')}.xlsx")
+        if args.json.endswith("json"):
+            args.xlsx = args.json.replace(
+                ".json",
+                f"_{time.strftime('%y%m%d%H%M%S')}.xlsx"
+            )
+        else:
+            args.xlsx = f"{time.strftime('%y%m%d%H%M%S')}.xlsx"
 
     main(fp_json=args.json, fp_xlsx=args.xlsx)

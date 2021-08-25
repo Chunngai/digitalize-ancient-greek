@@ -283,8 +283,8 @@ def main(fp_json, fp_xlsx):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--json")
-    parser.add_argument("--new")
+    parser.add_argument("--json", nargs=1)
+    parser.add_argument("--new", action="store_true")
     parser.add_argument("--xlsx")
     args = parser.parse_args()
 
@@ -292,7 +292,7 @@ if __name__ == '__main__':
         assert args.new is None
     if args.new:
         assert args.json is None
-        args.json = args.new
+        args.json = ""
 
     if not args.xlsx:
         args.xlsx = args.json.replace(".json", f"_{time.strftime('%y%m%d%H%M%S')}.xlsx")
